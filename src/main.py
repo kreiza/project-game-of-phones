@@ -1,5 +1,6 @@
-from src.cli import run_cli
 from db.database import init_db
+from src.cli import run_cli
+
 
 def main() -> None:
     """
@@ -7,6 +8,7 @@ def main() -> None:
     """
     init_db()
     run_cli()
+
 
 if __name__ == "__main__":
     main()

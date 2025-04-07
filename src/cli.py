@@ -1,11 +1,10 @@
-# phonebook/cli.py
-
 import argparse
 from datetime import date
 
+from db.database import init_db
 from src.common.models import PhoneBookRecord
 from src.repositories.record import PhoneBookRecordRepository
-from db.database import init_db
+
 
 def add_command(args: argparse.Namespace) -> None:
     """
@@ -34,6 +33,7 @@ def add_command(args: argparse.Namespace) -> None:
     added_record = repo.add(record)
     print(f"Added record with ID {added_record.id}")
 
+
 def list_command(args: argparse.Namespace) -> None:
     """
     Handle the list command to display all phonebook records.
@@ -45,6 +45,7 @@ def list_command(args: argparse.Namespace) -> None:
     else:
         for rec in records:
             print(rec.json())
+
 
 def update_command(args: argparse.Namespace) -> None:
     """
@@ -78,6 +79,7 @@ def update_command(args: argparse.Namespace) -> None:
     else:
         print(f"No record found with ID {args.id}")
 
+
 def delete_command(args: argparse.Namespace) -> None:
     """
     Handle the delete command to remove a phonebook record.
@@ -88,6 +90,7 @@ def delete_command(args: argparse.Namespace) -> None:
         print(f"Record with ID {args.id} deleted successfully.")
     else:
         print(f"No record found with ID {args.id}")
+
 
 def run_cli() -> None:
     """
@@ -102,8 +105,12 @@ def run_cli() -> None:
     parser_add.add_argument("--phone", required=True, help="Phone number")
     parser_add.add_argument("--address", required=True, help="Address")
     parser_add.add_argument("--email", required=True, help="Email address")
-    parser_add.add_argument("--birthday", required=True, help="Birthday in YYYY-MM-DD format")
-    parser_add.add_argument("--notes", required=False, help="Additional notes", default=None)
+    parser_add.add_argument(
+        "--birthday", required=True, help="Birthday in YYYY-MM-DD format"
+    )
+    parser_add.add_argument(
+        "--notes", required=False, help="Additional notes", default=None
+    )
     parser_add.set_defaults(func=add_command)
 
     # List command
@@ -111,27 +118,36 @@ def run_cli() -> None:
     parser_list.set_defaults(func=list_command)
 
     # Update command
-    parser_update = subparsers.add_parser("update", help="Update an existing phonebook record")
-    parser_update.add_argument("--id", type=int, required=True, help="ID of the record to update")
+    parser_update = subparsers.add_parser(
+        "update", help="Update an existing phonebook record"
+    )
+    parser_update.add_argument(
+        "--id", type=int, required=True, help="ID of the record to update"
+    )
     parser_update.add_argument("--name", help="Updated name")
     parser_update.add_argument("--phone", help="Updated phone number")
     parser_update.add_argument("--address", help="Updated address")
     parser_update.add_argument("--email", help="Updated email address")
-    parser_update.add_argument("--birthday", help="Updated birthday in YYYY-MM-DD format")
+    parser_update.add_argument(
+        "--birthday", help="Updated birthday in YYYY-MM-DD format"
+    )
     parser_update.add_argument("--notes", help="Updated notes")
     parser_update.set_defaults(func=update_command)
 
     # Delete command
     parser_delete = subparsers.add_parser("delete", help="Delete a phonebook record")
-    parser_delete.add_argument("--id", type=int, required=True, help="ID of the record to delete")
+    parser_delete.add_argument(
+        "--id", type=int, required=True, help="ID of the record to delete"
+    )
     parser_delete.set_defaults(func=delete_command)
 
     args = parser.parse_args()
 
-    if hasattr(args, 'func'):
+    if hasattr(args, "func"):
         args.func(args)
     else:
         parser.print_help()
+
 
 if __name__ == "__main__":
     # Ensure the database is initialized before running any command.

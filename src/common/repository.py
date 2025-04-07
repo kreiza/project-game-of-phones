@@ -1,5 +1,5 @@
-from abc import abstractmethod, ABC
-from typing import Optional, List, Dict, Any
+from abc import ABC, abstractmethod
+from typing import Any, Dict, List, Optional
 
 from src.common.models import PhoneBookRecord
 
@@ -31,7 +31,9 @@ class AbstractRepository(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def update(self, record_id: int, updates: Dict[str, Any]) -> Optional[PhoneBookRecord]:
+    def update(
+        self, record_id: int, updates: Dict[str, Any]
+    ) -> Optional[PhoneBookRecord]:
         """
         Update a phonebook record with the given updates.
         """
@@ -43,4 +45,3 @@ class AbstractRepository(ABC):
         Delete a phonebook record by its ID.
         """
         raise NotImplementedError
-

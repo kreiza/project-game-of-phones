@@ -1,10 +1,9 @@
-from typing import List, Optional, Dict, Any
+from typing import Any, Dict, List, Optional
 
-from src.common.repository import AbstractRepository
-from src.common.models import PhoneBookRecord
 from db.database import SessionLocal
 from db.orm_models import PhoneBookRecordORM
-
+from src.common.models import PhoneBookRecord
+from src.common.repository import AbstractRepository
 
 
 class PhoneBookRecordRepository(AbstractRepository):
@@ -75,7 +74,9 @@ class PhoneBookRecordRepository(AbstractRepository):
                 for rec in orm_records
             ]
 
-    def update(self, record_id: int, updates: Dict[str, Any]) -> Optional[PhoneBookRecord]:
+    def update(
+        self, record_id: int, updates: Dict[str, Any]
+    ) -> Optional[PhoneBookRecord]:
         """
         Update a phonebook record with the given updates.
 

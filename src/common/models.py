@@ -9,6 +9,7 @@ class PhoneBookRecord(BaseModel):
     """
     Pydantic model for a phonebook record.
     """
+
     id: Optional[int] = None
     name: str = Field(..., min_length=1, max_length=100)
     phone_number: PhoneNumber
@@ -17,7 +18,7 @@ class PhoneBookRecord(BaseModel):
     birthday: date
     notes: Optional[str] = Field(None, max_length=500)
 
-    @field_validator('birthday')
+    @field_validator("birthday")
     def validate_birthday(cls, value: date) -> date:
         """
         Validates that the birthday is not in the future.
@@ -31,4 +32,5 @@ class PhoneBookNote(BaseModel):
     """
     Pydantic model for a phonebook note.
     """
+
     note: str
