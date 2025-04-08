@@ -1,5 +1,5 @@
 from datetime import datetime
-from models.tag import Tag
+from models import Tag
     
 class Note:
     def __init__(self, title, content):
