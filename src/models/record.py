@@ -26,11 +26,3 @@ class PhoneBookRecord(BaseModel):
         if value > date.today():
             raise ValueError("Birthday cannot be in the future.")
         return value
-
-
-class PhoneBookNote(BaseModel):
-    """
-    Pydantic model for a phonebook note.
-    """
-
-    note: str

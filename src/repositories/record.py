@@ -2,11 +2,11 @@ from typing import Any, Dict, List, Optional
 
 from db.database import SessionLocal
 from db.orm_models import PhoneBookRecordORM
-from src.common.models import PhoneBookRecord
+from src.models.record import PhoneBookRecord
 from src.common.repository import AbstractRepository
 
 
-class PhoneBookRecordRepository(AbstractRepository):
+class PhoneBookRecordRepository(AbstractRepository[PhoneBookRecord]):
     """
     Concrete repository implementation using SQLite and SQLAlchemy.
     """

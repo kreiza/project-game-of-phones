@@ -13,6 +13,5 @@ def init_db() -> None:
     Initialize the database by creating all tables.
     """
     # Import orm_models so that they are registered with Base.
-    from db import orm_models
 
     Base.metadata.create_all(bind=engine)

@@ -1,47 +1,62 @@
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, TypeVar, Generic
 
-from src.common.models import PhoneBookRecord
+# Create a generic type variable to represent the entity type.
+T = TypeVar("T")
 
-
-class AbstractRepository(ABC):
+class AbstractRepository(Generic[T], ABC):
     """
-    Abstract base class defining the repository interface for phonebook records.
+    Abstract base class defining the repository interface for generic entities.
+
+    This interface can be implemented for different models/entities.
     """
 
     @abstractmethod
-    def add(self, record: PhoneBookRecord) -> PhoneBookRecord:
+    def add(self, entity: T) -> T:
         """
-        Add a new phonebook record to the repository.
+        Add a new entity to the repository.
+
+        :param entity: The entity to be added.
+        :return: The entity with any updated attributes (e.g., assigned ID).
         """
         raise NotImplementedError
 
     @abstractmethod
-    def get_by_id(self, record_id: int) -> Optional[PhoneBookRecord]:
+    def get_by_id(self, entity_id: int) -> Optional[T]:
         """
-        Retrieve a phonebook record by its ID.
+        Retrieve an entity by its ID.
+
+        :param entity_id: The unique identifier of the entity.
+        :return: The entity if found, else None.
         """
         raise NotImplementedError
 
     @abstractmethod
-    def list_all(self) -> List[PhoneBookRecord]:
+    def list_all(self) -> List[T]:
         """
-        List all phonebook records.
+        List all entities in the repository.
+
+        :return: A list of all entities.
         """
         raise NotImplementedError
 
     @abstractmethod
-    def update(
-        self, record_id: int, updates: Dict[str, Any]
-    ) -> Optional[PhoneBookRecord]:
+    def update(self, entity_id: int, updates: Dict[str, Any]) -> Optional[T]:
         """
-        Update a phonebook record with the given updates.
+        Update an entity with the given updates.
+
+        :param entity_id: The unique identifier of the entity to update.
+        :param updates: A dictionary containing the fields to update.
+        :return: The updated entity if successful, otherwise None.
         """
         raise NotImplementedError
 
     @abstractmethod
-    def delete(self, record_id: int) -> bool:
+    def delete(self, entity_id: int) -> bool:
         """
-        Delete a phonebook record by its ID.
+        Delete an entity by its ID.
+
+        :param entity_id: The unique identifier of the entity to delete.
+        :return: True if deletion was successful, False otherwise.
         """
         raise NotImplementedError
