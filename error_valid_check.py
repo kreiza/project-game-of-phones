@@ -1,101 +1,87 @@
-import string
+import re
 
-class ErrorsCheck:
-    def __init__(self, phone_number_str=None, email_address_str=None):
-        self.phone_number_str = phone_number_str
-        self.email_address_str = email_address_str
-        self.errors = []
+class ValidationError(ValueError):
+    pass
 
-    # Проверка номера телефона
-    def validate_phone_number(self):
-        if self.phone_number_str is None:
-            self.errors.append("Номер телефону не надано.")
-            return
+class Validator:
+    def __init__(self, value):
+        self.value = value
 
-        if not isinstance(self.phone_number_str, str):
-            self.errors.append("Помилка: Очікувався рядок (string).")
-            return
+    def validate(self):
+        raise NotImplementedError("класи повинні реалізувати цей метод")
 
-        if not self.phone_number_str:
-            self.errors.append("Номер телефону не може бути порожнім.")
-            return
+class PhoneNumberValidator(Validator):
+    MIN_DIGIT_LEN = 7
+    MAX_DIGIT_LEN = 15
+    ALLOWED_CHARS_PATTERN = re.compile(r"^[+\d\s()/-]*$")
 
-        allowed_chars = {'+', '-', '(', ')', ' '}.union(set(string.digits))
-        has_invalid_char = False
-        for char in self.phone_number_str:
-            if char not in allowed_chars:
-                has_invalid_char = True
-                break
+    def validate(self):
+        if not self.value:
+            raise ValidationError("Номер телефону не надано або він порожній.")
 
-        if has_invalid_char:
-            self.errors.append("Ви використовували неприпустимий символ у номері телефону.")
+        if not isinstance(self.value, str):
+            raise ValidationError("Помилка формату: Номер телефону має бути рядком (string).")
 
-        digits_only = ''.join(filter(str.isdigit, self.phone_number_str))
-        if not digits_only and self.phone_number_str:
-            self.errors.append("У номері телефону мають бути цифри.")
+        if not self.ALLOWED_CHARS_PATTERN.match(self.value):
+             raise ValidationError("Ви використали неприпустимий символ у номері телефону.")
 
-        MIN_DIGIT_LEN = 7
-        MAX_DIGIT_LEN = 15
+        if '+' in self.value and self.value.find('+') != 0:
+            raise ValidationError("Символ '+' дозволено лише на початку номера.")
 
-        if digits_only:
-            if len(digits_only) < MIN_DIGIT_LEN:
-                self.errors.append(f"Номер телефону надто короткий (мінімум {MIN_DIGIT_LEN} цифр).")
-            if len(digits_only) > MAX_DIGIT_LEN:
-                self.errors.append(f"Номер телефону надто довгий (максимум {MAX_DIGIT_LEN} цифр).")
+        digits_only = ''.join(filter(str.isdigit, self.value))
 
-        if '+' in self.phone_number_str and self.phone_number_str.find('+') != 0:
-            self.errors.append("Символ '+' дозволено лише на початку номера.")
+        if not digits_only:
+             raise ValidationError("У номері телефону мають бути цифри.")
 
-    # Проверка email
-    def validate_email_address(self):
-        if self.email_address_str is None:
-            self.errors.append("Email адреса не надана.")
-            return
+        if len(digits_only) < self.MIN_DIGIT_LEN:
+            raise ValidationError(f"Номер телефону надто короткий (мінімум {self.MIN_DIGIT_LEN} цифр).")
 
-        if not isinstance(self.email_address_str, str):
-            self.errors.append("Помилка: Очікувався рядок (string).")
-            return
+        if len(digits_only) > self.MAX_DIGIT_LEN:
+            raise ValidationError(f"Номер телефону надто довгий (максимум {self.MAX_DIGIT_LEN} цифр).")
 
-        if not self.email_address_str:
-            self.errors.append("Email адреса не може бути порожньою.")
-            return
+class EmailValidator(Validator):
+    EMAIL_PATTERN = re.compile(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
 
-        if self.email_address_str.count('@') != 1:
-            self.errors.append("Email адреса повинна містити рівно один символ '@'.")
-            return
+    def validate(self):
+        if not self.value:
+            raise ValidationError("Email адреса не надана або вона порожня.")
 
-        local_part, domain_part = self.email_address_str.split('@', 1)
+        if not isinstance(self.value, str):
+            raise ValidationError("Помилка формату: Email має бути рядком (string).")
 
-        if not local_part:
-            self.errors.append("Email повинен містити символ '@'.")
-            return
+        if not self.EMAIL_PATTERN.match(self.value):
+            if '@' not in self.value:
+                 raise ValidationError("Email адреса повинна містити символ '@'.")
+            if self.value.count('@') > 1:
+                 raise ValidationError("Email адреса повинна містити рівно один символ '@'.")
+            if '.' not in self.value.split('@', 1)[-1]:
+                 raise ValidationError("Частина домену (після '@') повинна містити крапку '.'." )
+            raise ValidationError("Email адреса має невірний формат.")
 
-        if not domain_part:
-            self.errors.append("Повинен бути хоча б один символ після '@'.")
-            return
+def run_validation_with_exceptions(phone_str, email_str):
+    print(f"Перевірка телефону: '{phone_str}'")
+    try:
+        phone_validator = PhoneNumberValidator(phone_str)
+        phone_validator.validate()
+        print("  Статус: OK")
+    except ValidationError as e:
+        print(f"  Статус: Помилка -> {e}")
 
-        if '.' not in domain_part:
-            self.errors.append("Після '@' повинна бути хоча б одна крапка '.'.")
-
-    # Функция для вывода всех ошибок
-    def output_errors(self):
-        self.validate_phone_number()
-        self.validate_email_address()
-        return self.errors
-
-def run_validation(phone_number_str, email_address_str):
-    validator = ErrorsCheck(phone_number_str=phone_number_str, email_address_str=email_address_str)
-    errors = validator.output_errors()
-    print(f"Проверка телефона: {phone_number_str}")
-    print(f"Проверка email: {email_address_str}")
     print("-" * 20)
-    print(errors)
 
-# Пример использования
-phone_number_str = "12345"  
-email_address_str = "userexample.com"  
+    print(f"Перевірка email: '{email_str}'")
+    try:
+        email_validator = EmailValidator(email_str)
+        email_validator.validate()
+        print("  Статус: OK")
+    except ValidationError as e:
+        print(f"  Статус: Помилка -> {e}")
 
-run_validation(phone_number_str, email_address_str)
+    print("=" * 30 + "\n")
+
+
+print("Приклад:")
+run_validation_with_exceptions("12345", "userexample.com")
 
 
 
