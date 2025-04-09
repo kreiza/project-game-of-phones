@@ -57,6 +57,19 @@ def add_note(self):
     except Exception as e:
         print(f"❌ Something went wrong: {e}")
 
+def show_note(self):
+    while True:
+        title = input("Enter a note title (or type 'exit' to cancel): ").strip()
+        if title.lower() == "exit":
+            print("Note creation canceled.")
+            return  
+        if not title:
+            print("Note title is required. Please enter a title.")
+        else:
+            print(self.show_note(title))
+            break
+            
+
 
 
 
@@ -73,6 +86,9 @@ def main():
 
         elif command == "add note":
             add_note(notebook)
+
+        elif command == "show note":
+            show_note(notebook)
 
         else:
             print("⚠️ Unknown command. Type 'commands' to see available ones.")

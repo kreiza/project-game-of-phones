@@ -2,7 +2,7 @@ from collections import UserDict
 
 class NoteBook(UserDict):
     def add_note(self, record):
-        self.data[record.title.value] = record
+        self.data[record.title] = record
 
     def find_note(self, title):
         return self.data.get(title, f"No note found with name '{title}'")
