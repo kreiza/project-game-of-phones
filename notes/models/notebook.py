@@ -2,14 +2,14 @@ from collections import UserDict
 
 class NoteBook(UserDict):
     def add_note(self, record):
-        self.data[record.name.value] = record
+        self.data[record.title.value] = record
 
-    def find_note(self, name):
-        return self.data.get(name, f"No note found with name '{name}'")
+    def find_note(self, title):
+        return self.data.get(title, f"No note found with name '{title}'")
 
-    def delete_note(self, name):
-        if name in self.data:
-            del self.data[name]
+    def delete_note(self, title):
+        if title in self.data:
+            del self.data[title]
             return "Note was deleted"
         return KeyError()
     
@@ -17,7 +17,7 @@ class NoteBook(UserDict):
         result = []
         for note in self.data.values():
             if (
-                keyword.lower() in note.name.lower() or
+                keyword.lower() in note.title.lower() or
                 keyword.lower() in note.content.lower() or
                 any(keyword.lower() in tag.lower() for tag in note.tags)
             ):
@@ -31,11 +31,11 @@ class NoteBook(UserDict):
                 result.append(note)
         return result
     
-    def show_note(self, name):
-        note = self.find_note(name)
+    def show_note(self, title):
+        note = self.find_note(title)
         if note:
             return f"{note}"
-        return f"No note found with name '{name}'"
+        return f"No note found with name '{title}'"
 
     def show_all(self):
         return list(self.data.values())
