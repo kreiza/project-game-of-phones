@@ -5,7 +5,7 @@ from pydantic import BaseModel, EmailStr, Field, field_validator
 from pydantic_extra_types.phone_numbers import PhoneNumber
 
 
-class PhoneBookRecord(BaseModel):
+class Contact(BaseModel):
     """
     Pydantic model for a phonebook record.
     """
@@ -16,7 +16,7 @@ class PhoneBookRecord(BaseModel):
     address: str = Field(..., max_length=255)
     email: EmailStr
     birthday: date
-    notes: Optional[str] = Field(None, max_length=500)
+    contact_note: Optional[str] = Field(None, max_length=500)
 
     @field_validator("birthday")
     def validate_birthday(cls, value: date) -> date:

@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Generic, TypeVar, Optional, List, Dict, Any
+from typing import Any, Dict, Generic, List, Optional, TypeVar
 
-T = TypeVar('T')
+T = TypeVar("T")
 
 
 class AbstractRepository(Generic[T], ABC):
@@ -21,7 +21,7 @@ class AbstractRepository(Generic[T], ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get(self, **search_params) -> Optional[T]:
+    def get_by_id(self, **search_params) -> Optional[T]:
         """
         Retrieve an entity using arbitrary search parameters.
         This allows you to perform searches based on non-ID fields

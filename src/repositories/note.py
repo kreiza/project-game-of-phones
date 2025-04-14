@@ -1,10 +1,10 @@
 from datetime import datetime
 from typing import Any, Dict, List, Optional
-from src.common.repository import AbstractRepository
-from src.models.note import Note
+
 from db.database import SessionLocal
 from db.orm_models import NoteORM, TagORM
-
+from src.common.repository import AbstractRepository
+from src.models.note import Note
 
 
 class NoteRepository(AbstractRepository[Note]):
@@ -29,11 +29,24 @@ class NoteRepository(AbstractRepository[Note]):
                     session.add(tag_obj)
                 tag_objs.append(tag_obj)
 
-            orm_note = NoteORM(title=note.title, content=note.content, created_at = note.created_at, modified_at = note.modified_at, audit_message = note.audit_message, tags=tag_objs)
+            orm_note = NoteORM(
+                title=note.title,
+                content=note.content,
+                created_at=note.created_at,
+                modified_at=note.modified_at,
+                tags=tag_objs,
+            )
             session.add(orm_note)
             session.commit()
             session.refresh(orm_note)
-            return Note(id=orm_note.id, title=orm_note.title, content=orm_note.content, created_at=orm_note.created_at, modified_at=orm_note.modified_at, audit_message = orm_note.audit_message, tags=[t.name for t in orm_note.tags])
+            return Note(
+                id=orm_note.id,
+                title=orm_note.title,
+                content=orm_note.content,
+                created_at=orm_note.created_at,
+                modified_at=orm_note.modified_at,
+                tags=[t.name for t in orm_note.tags],
+            )
 
     def get_by_id(self, note_id: int) -> Optional[Note]:
         """
@@ -44,7 +57,14 @@ class NoteRepository(AbstractRepository[Note]):
         with SessionLocal() as session:
             orm_note = session.get(NoteORM, note_id)
             if orm_note:
-                return Note(id=orm_note.id, title=orm_note.title, content=orm_note.content, created_at=orm_note.created_at, modified_at=orm_note.modified_at, audit_message = orm_note.audit_message, tags=[t.name for t in orm_note.tags])
+                return Note(
+                    id=orm_note.id,
+                    title=orm_note.title,
+                    content=orm_note.content,
+                    created_at=orm_note.created_at,
+                    modified_at=orm_note.modified_at,
+                    tags=[t.name for t in orm_note.tags],
+                )
             return None
 
     def list_all(self) -> List[Note]:
@@ -54,17 +74,25 @@ class NoteRepository(AbstractRepository[Note]):
         """
         with SessionLocal() as session:
             orm_notes = session.query(NoteORM).all()
-            return [Note(id=n.id, title=n.title, content=n.content, created_at=n.created_at, modified_at=n.modified_at, audit_message = n.audit_message, tags=[t.name for t in n.tags]) for n in orm_notes]
-
-    from datetime import datetime
+            return [
+                Note(
+                    id=n.id,
+                    title=n.title,
+                    content=n.content,
+                    created_at=n.created_at,
+                    modified_at=n.modified_at,
+                    tags=[t.name for t in n.tags],
+                )
+                for n in orm_notes
+            ]
 
     def update(self, note_id: int, updates: Dict[str, Any]) -> Optional[Note]:
         """
         Update an existing note with the provided fields.
         The updates dictionary can contain:
-        - "title": new note title
-        - "content": new note content
-        - "tags": new list of tag names
+          - "title": new note title
+          - "content": new note content
+          - "tags": new list of tag names
         :param note_id: The unique identifier of the note to update.
         :param updates: A dictionary of fields to update.
         :return: The updated Note if successful, otherwise None.
@@ -90,12 +118,7 @@ class NoteRepository(AbstractRepository[Note]):
                     new_tags.append(tag_obj)
                 orm_note.tags = new_tags
 
-
             orm_note.modified_at = datetime.now()
-
-            audit_message = updates.get("audit_message", f"Note {note_id} was updated.")
-            orm_note.audit_message = audit_message
-
             session.commit()
             session.refresh(orm_note)
 
@@ -106,9 +129,7 @@ class NoteRepository(AbstractRepository[Note]):
                 tags=[t.name for t in orm_note.tags],
                 created_at=orm_note.created_at,
                 modified_at=orm_note.modified_at,
-                audit_message=orm_note.audit_message,
             )
-
 
     def delete(self, note_id: int) -> bool:
         """
@@ -123,19 +144,17 @@ class NoteRepository(AbstractRepository[Note]):
             session.delete(orm_note)
             session.commit()
             return True
-   
-    
+
     def search_by_title(self, keyword: str) -> List[Note]:
         """
         Search for notes that contain the specified title substring (case-insensitive).
-        
-        :param title: The substring to search in note titles.
+        :param keyword: The substring to search in note titles.
         :return: A list of Note instances that match the title.
         """
         with SessionLocal() as session:
-            orm_notes = session.query(NoteORM)\
-                .filter(NoteORM.title.ilike(f"%{keyword}%"))\
-                .all()
+            orm_notes = (
+                session.query(NoteORM).filter(NoteORM.title.ilike(f"%{keyword}%")).all()
+            )
 
             return [
                 Note(
@@ -144,38 +163,34 @@ class NoteRepository(AbstractRepository[Note]):
                     content=n.content,
                     created_at=n.created_at,
                     modified_at=n.modified_at,
-                    audit_message=n.audit_message,
                     tags=[t.name for t in n.tags],
                 )
                 for n in orm_notes
             ]
 
-
     def search_by_tags(self, tags: List[str]) -> List[Note]:
         """
         Search for notes that are associated with any of the specified tags.
-
         :param tags: A list of tag names to search for.
         :return: A list of Note instances matching the query.
         """
         with SessionLocal() as session:
             orm_notes = (
-            session.query(NoteORM)
-            .join(NoteORM.tags)
-            .filter(TagORM.name.in_(tags))
-            .distinct()
-            .all()
+                session.query(NoteORM)
+                .join(NoteORM.tags)
+                .filter(TagORM.name.in_(tags))
+                .distinct()
+                .all()
             )
 
             return [
-            Note(
-                id=n.id,
-                title=n.title,
-                content=n.content,
-                tags=[t.name for t in n.tags],
-                created_at=n.created_at,
-                modified_at=n.modified_at,
-                audit_message=n.audit_message
-            )
-            for n in orm_notes
-        ]
+                Note(
+                    id=n.id,
+                    title=n.title,
+                    content=n.content,
+                    tags=[t.name for t in n.tags],
+                    created_at=n.created_at,
+                    modified_at=n.modified_at,
+                )
+                for n in orm_notes
+            ]
